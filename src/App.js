@@ -1,21 +1,15 @@
-import './App.css';
+import "./App.css";
+import { useRef } from "react";
+import Header from "./components/Header/Header";
 
 function App() {
+  const audioEl = useRef();
+  const audioContext = new AudioContext();
+
   return (
     <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header />
+      <audio ref={audioEl} />
     </div>
   );
 }

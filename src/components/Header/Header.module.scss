@@ -1,0 +1,21 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 25px;
+
+  img {
+    margin-right: 25px;
+    height: 50px;
+  }
+}
+
+.title {
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
