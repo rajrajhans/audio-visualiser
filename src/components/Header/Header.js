@@ -10,7 +10,7 @@ const Header = () => {
         <div className={styles.title}>Audio Visualiser</div>
       </div>
 
-      <div>
+      <div className={styles.blogPostLink}>
         <a>Read the Blog Post</a>
       </div>
     </div>

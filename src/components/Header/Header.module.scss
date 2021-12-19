@@ -1,5 +1,6 @@
 .header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   padding-bottom: 25px;
@@ -18,4 +19,10 @@
 .logo {
   display: flex;
   align-items: center;
+}
+
+.blogPostLink {
+  @media only screen and (max-width: 768px) {
+    margin-top: 15px;
+  }
 }
