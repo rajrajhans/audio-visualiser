@@ -4,7 +4,7 @@ import Header from "./components/Header/Header";
 import AudioSelector from "./components/AudioSelector/AudioSelector";
 
 function App() {
-  const audioEl = useRef();
+  const audioEl = useRef<HTMLAudioElement | null>(null);
   const audioContext = new AudioContext();
 
   return (
