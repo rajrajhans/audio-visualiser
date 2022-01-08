@@ -7,6 +7,61 @@ interface WaveformProps {
   audioBuffer: AudioBuffer | null;
 }
 
+const sketch = (p5: P5Instance) => {
+  let analyserNode: AnalyserNode;
+  let analyserData: Float32Array;
+
+  p5.setup = () => p5.createCanvas(500, 500);
+
+  p5.updateWithProps = (props) => {
+    if (props.analyserNode) {
+      analyserNode = props.analyserNode;
+      analyserData = new Float32Array(analyserNode.fftSize);
+    }
+  };
+
+  p5.draw = () => {
+    if (analyserNode) {
+      p5.background(0, 0, 0);
+      p5.noFill();
+      p5.stroke("white");
+
+      analyserNode.getFloatTimeDomainData(analyserData);
+
+      p5.beginShape();
+
+      for (let i = 0; i < analyserData.length; i++) {
+        const amplitude = analyserData[i];
+
+        const extrapolatedYAxisCoords = p5.map(
+          amplitude,
+          -1,
+          1,
+          p5.height / 2 - p5.height / 4,
+          p5.height / 2 + p5.height / 4
+        );
+
+        const extrapolatedXAxisCoords = p5.map(
+          i,
+          0,
+          analyserData.length - 1,
+          0,
+          p5.width
+        );
+
+        p5.vertex(extrapolatedXAxisCoords, extrapolatedYAxisCoords);
+        p5.endShape();
+      }
+    } else {
+      p5.fill("white");
+      p5.noStroke();
+      // Draw a play button
+      const dim = p5.min(p5.width, p5.height);
+      drawPolygon(p5, p5.width / 2, p5.height / 2, dim * 0.1, 3);
+    }
+  };
+};
+
 const Waveform = ({ audioContext, audioBuffer }: WaveformProps) => {
   const gainNodeRef = useRef<GainNode | null>(null);
   const analyserNodeRef = useRef<AnalyserNode | null>(null);
@@ -53,59 +108,10 @@ const Waveform = ({ audioContext, audioBuffer }: WaveformProps) => {
     }
   };
 
-  const sketch = (p5: P5Instance) => {
-    p5.setup = () => p5.createCanvas(500, 500);
-
-    if (analyserNodeRef.current) {
-      p5.draw = () => {
-        p5.background(0, 0, 0);
-        p5.noFill();
-        p5.stroke("white");
-        if (analyserNodeRef.current) {
-          analyserNodeRef.current.getFloatTimeDomainData(
-            analyserDataRef.current
-          );
-        }
-        p5.beginShape();
-
-        for (let i = 0; i < analyserDataRef.current.length; i++) {
-          const amplitude = analyserDataRef.current[i];
-
-          const extrapolatedYAxisCoords = p5.map(
-            amplitude,
-            -1,
-            1,
-            p5.height / 2 - p5.height / 4,
-            p5.height / 2 + p5.height / 4
-          );
-
-          const extrapolatedXAxisCoords = p5.map(
-            i,
-            0,
-            analyserDataRef.current.length - 1,
-            0,
-            p5.width
-          );
-
-          p5.vertex(extrapolatedXAxisCoords, extrapolatedYAxisCoords);
-          p5.endShape();
-        }
-      };
-    } else {
-      p5.draw = () => {
-        p5.fill("white");
-        p5.noStroke();
-        // Draw a play button
-        const dim = p5.min(p5.width, p5.height);
-        drawPolygon(p5, p5.width / 2, p5.height / 2, dim * 0.1, 3);
-      };
-    }
-  };
-
   return (
     <div>
       <button onClick={onPlay}>Do stuff</button>
-      <ReactP5Wrapper sketch={sketch} />
+      <ReactP5Wrapper sketch={sketch} analyserNode={analyserNodeRef.current} />
     </div>
   );
 };
