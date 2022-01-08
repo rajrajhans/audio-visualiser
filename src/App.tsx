@@ -1,8 +1,7 @@
 import "./App.css";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import Header from "./components/Header/Header";
 import AudioSelector from "./components/AudioSelector/AudioSelector";
-import piano from "./assets/sample_audios/piano.mp3";
 import Waveform from "./components/visualisation-components/Waveform/Waveform";
 import { useGlobalStateContext } from "./state/GlobalStateProvider";
 
