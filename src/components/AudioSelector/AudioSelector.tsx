@@ -44,11 +44,37 @@ const AudioDropdown = () => {
   );
 };
 
-const AudioInput = () => (
-  <div className={styles.audioInput}>
-    <label htmlFor={"audio-input"}>Upload your own audio file</label>
-    <input id={"audio-input"} type={"file"} />
-  </div>
-);
+const AudioInput = () => {
+  const { userUploadedMusic, changeUserUploadedMusic } =
+    useGlobalStateContext();
+
+  const inputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      if (ev.target) {
+        changeUserUploadedMusic(ev.target.result);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  return (
+    <div className={styles.audioInput}>
+      <label htmlFor={"audio-input"}>Upload your own audio file</label>
+      <div className={styles.audioUploadContainer}>
+        <input
+          id={"audio-input"}
+          type={"file"}
+          onChange={inputChangeHandler}
+          accept=".mp3"
+        />
+        {userUploadedMusic ? <button>Use uploaded audio</button> : null}
+      </div>
+    </div>
+  );
+};
 
 export default AudioSelector;
