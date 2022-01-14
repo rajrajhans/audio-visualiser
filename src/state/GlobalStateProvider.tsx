@@ -1,14 +1,21 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import piano from "../assets/sample_audios/piano.mp3";
+import sample_audios from "../components/AudioSelector/sample_audios";
 
 interface GlobalStateInterface {
   audioContext: AudioContext | null;
   audioBuffer: AudioBuffer | null;
+  selectedMusic: string;
+  changeSelectedMusic: (selectedMusic: string) => void;
 }
+
+const defaultAudio = sample_audios[0].path;
 
 const initialGlobalState = {
   audioContext: null,
   audioBuffer: null,
+  selectedMusic: defaultAudio,
+  changeSelectedMusic: () => {},
 };
 
 const GlobalStateContext =
@@ -17,6 +24,14 @@ const GlobalStateContext =
 export const GlobalStateProvider = ({ children }: any) => {
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
+  const [selectedMusic, setSelectedMusic] = useState<string>(defaultAudio);
+
+  useEffect(() => {
+    const setupDeps = async () => {
+      await setupWebAudio();
+    };
+    setupDeps();
+  }, []);
 
   const setupWebAudio = async () => {
     if (!audioContext) {
@@ -36,15 +51,14 @@ export const GlobalStateProvider = ({ children }: any) => {
     }
   };
 
-  useEffect(() => {
-    const setupDeps = async () => {
-      await setupWebAudio();
-    };
-    setupDeps();
-  }, []);
+  const changeSelectedMusic = (selectedMusic: string) => {
+    setSelectedMusic(selectedMusic);
+  };
 
   return (
-    <GlobalStateContext.Provider value={{ audioBuffer, audioContext }}>
+    <GlobalStateContext.Provider
+      value={{ audioBuffer, audioContext, changeSelectedMusic, selectedMusic }}
+    >
       {children}
     </GlobalStateContext.Provider>
   );

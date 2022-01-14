@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./AudioSelector.module.scss";
 import sample_audios from "./sample_audios";
+import { useGlobalStateContext } from "../../state/GlobalStateProvider";
 
 const AudioSelector = () => {
   return (
@@ -14,20 +15,32 @@ const AudioSelector = () => {
   );
 };
 
-const AudioDropdown = () => (
-  <div>
-    <label htmlFor={"audio-dropdown"}>
-      Choose from any of the sample audios
-    </label>
-    <select id={"audio-dropdown"}>
-      {sample_audios.map((audio) => (
-        <option value={audio.path} key={audio.id}>
-          {audio.name}
-        </option>
-      ))}
-    </select>
-  </div>
-);
+const AudioDropdown = () => {
+  const { changeSelectedMusic, selectedMusic } = useGlobalStateContext();
+
+  const handleChange = (e: any) => {
+    changeSelectedMusic(e.target.value);
+  };
+
+  return (
+    <div>
+      <label htmlFor={"audio-dropdown"}>
+        Choose from any of the sample audios
+      </label>
+      <select
+        id={"audio-dropdown"}
+        value={selectedMusic}
+        onChange={handleChange}
+      >
+        {sample_audios.map((audio) => (
+          <option value={audio.path} key={audio.id}>
+            {audio.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
 
 const AudioInput = () => (
   <div className={styles.audioInput}>

@@ -88,7 +88,6 @@ const Waveform = ({ audioContext, audioBuffer }: WaveformProps) => {
 
   useEffect(() => {
     setupNodes();
-    console.log("x");
   }, [audioContext, audioBuffer]);
 
   const onPlay = async () => {
