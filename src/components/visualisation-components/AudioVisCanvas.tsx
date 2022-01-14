@@ -1,12 +1,16 @@
 import React, { useEffect, useRef } from "react";
 import { ReactP5Wrapper } from "react-p5-wrapper";
-import { useGlobalStateContext } from "../../state/GlobalStateProvider";
+import {
+  AudioSource,
+  useGlobalStateContext,
+} from "../../state/GlobalStateProvider";
 import sketch from "./sketches/WaveformSketch";
 
 let audioContext = new AudioContext();
 
 const AudioVisCanvas = () => {
-  const { selectedMusic } = useGlobalStateContext();
+  const { selectedMusic, audioSource, userUploadedMusic } =
+    useGlobalStateContext();
 
   const gainNodeRef = useRef<GainNode | null>(null);
   const analyserNodeRef = useRef<AnalyserNode | null>(null);
@@ -33,11 +37,18 @@ const AudioVisCanvas = () => {
 
   useEffect(() => {
     setupNodes();
-  }, [selectedMusic]);
+  }, [selectedMusic, audioSource]);
 
   const onPlay = async () => {
-    const resp = await fetch(selectedMusic);
-    const buf = await resp.arrayBuffer();
+    let buf;
+    if (audioSource === AudioSource.SelectedAudio) {
+      const resp = await fetch(selectedMusic);
+      buf = await resp.arrayBuffer();
+    } else {
+      buf = userUploadedMusic;
+    }
+
+    // @ts-ignore
     const audioBuffer: AudioBuffer = await audioContext.decodeAudioData(buf);
 
     if (audioContext && audioBuffer && gainNodeRef.current) {

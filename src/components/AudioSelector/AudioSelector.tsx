@@ -1,7 +1,10 @@
 import React from "react";
 import styles from "./AudioSelector.module.scss";
 import sample_audios from "./sample_audios";
-import { useGlobalStateContext } from "../../state/GlobalStateProvider";
+import {
+  AudioSource,
+  useGlobalStateContext,
+} from "../../state/GlobalStateProvider";
 
 const AudioSelector = () => {
   return (
@@ -45,8 +48,7 @@ const AudioDropdown = () => {
 };
 
 const AudioInput = () => {
-  const { userUploadedMusic, changeUserUploadedMusic } =
-    useGlobalStateContext();
+  const { changeUserUploadedMusic, setAudioSource } = useGlobalStateContext();
 
   const inputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -59,6 +61,7 @@ const AudioInput = () => {
       }
     };
     reader.readAsArrayBuffer(file);
+    setAudioSource(AudioSource.UserUploadedAudio);
   };
 
   return (
@@ -71,7 +74,6 @@ const AudioInput = () => {
           onChange={inputChangeHandler}
           accept=".mp3"
         />
-        {userUploadedMusic ? <button>Use uploaded audio</button> : null}
       </div>
     </div>
   );
