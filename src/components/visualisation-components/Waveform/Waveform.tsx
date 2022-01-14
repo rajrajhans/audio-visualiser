@@ -1,11 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { P5Instance, ReactP5Wrapper } from "react-p5-wrapper";
 import drawPolygon from "../../../utils/drawPolygon";
+import { useGlobalStateContext } from "../../../state/GlobalStateProvider";
 
-interface WaveformProps {
-  audioContext: AudioContext | null;
-  audioBuffer: AudioBuffer | null;
-}
+let audioContext = new AudioContext();
 
 const sketch = (p5: P5Instance) => {
   let analyserNode: AnalyserNode;
@@ -62,7 +60,9 @@ const sketch = (p5: P5Instance) => {
   };
 };
 
-const Waveform = ({ audioContext, audioBuffer }: WaveformProps) => {
+const Waveform = () => {
+  const { selectedMusic } = useGlobalStateContext();
+
   const gainNodeRef = useRef<GainNode | null>(null);
   const analyserNodeRef = useRef<AnalyserNode | null>(null);
   const analyserDataRef = useRef<Float32Array>(new Float32Array());
@@ -88,9 +88,13 @@ const Waveform = ({ audioContext, audioBuffer }: WaveformProps) => {
 
   useEffect(() => {
     setupNodes();
-  }, [audioContext, audioBuffer]);
+  }, [selectedMusic]);
 
   const onPlay = async () => {
+    const resp = await fetch(selectedMusic);
+    const buf = await resp.arrayBuffer();
+    const audioBuffer: AudioBuffer = await audioContext.decodeAudioData(buf);
+
     if (audioContext && audioBuffer && gainNodeRef.current) {
       await audioContext.resume();
       const audioBufferSourceNode = audioContext.createBufferSource();

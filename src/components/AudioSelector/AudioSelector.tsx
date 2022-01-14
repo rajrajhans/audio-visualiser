@@ -32,6 +32,8 @@ const AudioDropdown = () => {
         value={selectedMusic}
         onChange={handleChange}
       >
+        <option value={"default"}>Select an audio</option>
+
         {sample_audios.map((audio) => (
           <option value={audio.path} key={audio.id}>
             {audio.name}
