@@ -50,8 +50,8 @@ const sketch = (p5: P5Instance) => {
         );
 
         p5.vertex(extrapolatedXAxisCoords, extrapolatedYAxisCoords);
-        p5.endShape();
       }
+      p5.endShape();
     } else {
       p5.fill("white");
       p5.noStroke();
