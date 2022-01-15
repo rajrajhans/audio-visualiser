@@ -7,6 +7,37 @@ import {
 import sketch from "./sketches/WaveformSketch";
 
 let audioContext = new AudioContext();
+let dest: any;
+let chunks: any = [];
+const record = () => {
+  chunks.length = 0;
+  // @ts-ignore
+  let stream = document.querySelector("canvas").captureStream(30);
+  dest.stream.addTrack(stream.getTracks()[0]);
+
+  let recorder = new MediaRecorder(dest.stream);
+  recorder.ondataavailable = (e) => {
+    if (e.data.size) {
+      chunks.push(e.data);
+    }
+  };
+  recorder.onstop = exportVideo;
+  recorder.start();
+  setTimeout(() => {
+    recorder.stop();
+  }, 5000);
+};
+
+function exportVideo() {
+  var blob = new Blob(chunks);
+  console.log(blob);
+  var vid = document.createElement("video");
+  vid.id = "recorded";
+  vid.controls = true;
+  vid.src = URL.createObjectURL(blob);
+  document.body.appendChild(vid);
+  vid.play();
+}
 
 const AudioVisCanvas = () => {
   const { selectedMusic, audioSource, userUploadedMusic } =
@@ -57,6 +88,8 @@ const AudioVisCanvas = () => {
       audioBufferSourceNode.connect(gainNodeRef.current);
       audioBufferSourceNode.buffer = audioBuffer;
       audioBufferSourceNode.start(0);
+      dest = audioContext.createMediaStreamDestination();
+      audioBufferSourceNode.connect(dest);
       if (analyserNodeRef.current) {
         analyserNodeRef.current.getFloatTimeDomainData(analyserDataRef.current);
       }
@@ -70,6 +103,7 @@ const AudioVisCanvas = () => {
   return (
     <div>
       <button onClick={onPlay}>Do stuff</button>
+      <button onClick={record}>Do rec</button>
       <ReactP5Wrapper sketch={sketch} analyserNode={analyserNodeRef.current} />
     </div>
   );
