@@ -10,43 +10,38 @@ import { SingleCanvasDimensions } from "../../data/constants";
 
 let audioContext = new AudioContext();
 let audioBufferSourceNode: AudioBufferSourceNode;
+let recorder: MediaRecorder;
+let recordedBlobURL: string;
 let dest: any;
 let chunks: any = [];
 
 const record = () => {
   chunks.length = 0;
   // @ts-ignore
-  let stream = document.querySelector("canvas").captureStream(30);
+  let stream = document
+    .querySelector("#waveform-sketch canvas")
+    // @ts-ignore
+    .captureStream(30);
   dest.stream.addTrack(stream.getTracks()[0]);
 
-  let recorder = new MediaRecorder(dest.stream);
+  recorder = new MediaRecorder(dest.stream);
   recorder.ondataavailable = (e) => {
     if (e.data.size) {
       chunks.push(e.data);
     }
   };
-  recorder.onstop = exportVideo;
+  recorder.onstop = () => {
+    const blob = new Blob(chunks);
+    recordedBlobURL = URL.createObjectURL(blob);
+  };
   recorder.start();
-  setTimeout(() => {
-    recorder.stop();
-  }, 2000);
 };
-
-function exportVideo() {
-  var blob = new Blob(chunks);
-  console.log(blob);
-  var vid = document.createElement("video");
-  vid.id = "recorded";
-  vid.controls = true;
-  vid.src = URL.createObjectURL(blob);
-  document.body.appendChild(vid);
-  vid.play();
-}
 
 const AudioVisCanvas = () => {
   const { selectedMusic, audioSource, userUploadedMusic } =
     useGlobalStateContext();
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [isAudioDownloading, setIsAudioDownloading] = useState(false);
   const gainNodeRef = useRef<GainNode | null>(null);
   const analyserNodeRef = useRef<AnalyserNode | null>(null);
   const analyserDataRef = useRef<Float32Array>(new Float32Array());
@@ -111,6 +106,9 @@ const AudioVisCanvas = () => {
       audioBufferSourceNode.start(0);
       audioBufferSourceNode.onended = () => {
         setIsAudioPlaying(false);
+        if (recorder) {
+          recorder.stop();
+        }
       };
       dest = audioContext.createMediaStreamDestination();
       audioBufferSourceNode.connect(dest);
@@ -124,9 +122,31 @@ const AudioVisCanvas = () => {
     }
   };
 
+  const downloadHandler = async () => {
+    setIsAudioDownloading(true);
+    await playAudio();
+    record();
+    const checkIfRecorded = () => {
+      if (recordedBlobURL) {
+        const link = document.createElement("a");
+        // @ts-ignore
+        link.className = "hiddenDownloadLink";
+        link.download = "waveform.webm";
+        link.href = recordedBlobURL;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setIsAudioDownloading(false);
+      } else {
+        setTimeout(checkIfRecorded, 1000);
+      }
+    };
+    checkIfRecorded();
+  };
+
   return (
     <div style={{ width: SingleCanvasDimensions.Width }}>
-      <div className={styles.visCanvas}>
+      <div className={styles.visCanvas} id="waveform-sketch">
         <ReactP5Wrapper
           sketch={sketch}
           analyserNode={analyserNodeRef.current}
@@ -139,7 +159,13 @@ const AudioVisCanvas = () => {
           <button onClick={playPauseHandler}>
             {isAudioPlaying ? "Stop" : "Play"}
           </button>
-          <button onClick={record}>Download</button>
+          <button
+            disabled={isAudioDownloading}
+            onClick={downloadHandler}
+            style={{ cursor: isAudioDownloading ? "not-allowed" : "pointer" }}
+          >
+            {isAudioDownloading ? "Downloading..." : "Download"}
+          </button>
         </div>
       </div>
     </div>
