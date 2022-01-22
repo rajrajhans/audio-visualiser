@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ReactP5Wrapper } from "react-p5-wrapper";
 import {
   AudioSource,
@@ -9,8 +9,10 @@ import sketch from "./sketches/WaveformSketch";
 import { SingleCanvasDimensions } from "../../data/constants";
 
 let audioContext = new AudioContext();
+let audioBufferSourceNode: AudioBufferSourceNode;
 let dest: any;
 let chunks: any = [];
+
 const record = () => {
   chunks.length = 0;
   // @ts-ignore
@@ -44,7 +46,7 @@ function exportVideo() {
 const AudioVisCanvas = () => {
   const { selectedMusic, audioSource, userUploadedMusic } =
     useGlobalStateContext();
-
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const gainNodeRef = useRef<GainNode | null>(null);
   const analyserNodeRef = useRef<AnalyserNode | null>(null);
   const analyserDataRef = useRef<Float32Array>(new Float32Array());
@@ -72,7 +74,19 @@ const AudioVisCanvas = () => {
     setupNodes();
   }, [selectedMusic, audioSource]);
 
-  const onPlay = async () => {
+  const playPauseHandler = () => {
+    if (isAudioPlaying) {
+      if (audioBufferSourceNode) {
+        audioBufferSourceNode.stop(0);
+        setIsAudioPlaying(false);
+      }
+    } else {
+      playAudio();
+      setIsAudioPlaying(true);
+    }
+  };
+
+  const playAudio = async () => {
     let buf;
     if (audioSource === AudioSource.SelectedAudio) {
       const resp = await fetch(selectedMusic);
@@ -86,10 +100,13 @@ const AudioVisCanvas = () => {
 
     if (audioContext && audioBuffer && gainNodeRef.current) {
       await audioContext.resume();
-      const audioBufferSourceNode = audioContext.createBufferSource();
+      audioBufferSourceNode = audioContext.createBufferSource();
       audioBufferSourceNode.connect(gainNodeRef.current);
       audioBufferSourceNode.buffer = audioBuffer;
       audioBufferSourceNode.start(0);
+      audioBufferSourceNode.onended = () => {
+        setIsAudioPlaying(false);
+      };
       dest = audioContext.createMediaStreamDestination();
       audioBufferSourceNode.connect(dest);
       if (analyserNodeRef.current) {
@@ -97,8 +114,8 @@ const AudioVisCanvas = () => {
       }
     } else {
       await setupNodes();
-      onPlay();
       alert("There was an error in setting up Audio Context");
+      playAudio();
     }
   };
 
@@ -114,7 +131,9 @@ const AudioVisCanvas = () => {
         <div className={styles.sketchName}>Waveform</div>
 
         <div className={styles.canvasControls}>
-          <button onClick={onPlay}>Play</button>
+          <button onClick={playPauseHandler}>
+            {isAudioPlaying ? "Stop" : "Play"}
+          </button>
           <button onClick={record}>Download</button>
         </div>
       </div>
