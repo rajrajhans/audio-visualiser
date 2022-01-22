@@ -1,0 +1,13 @@
+.selectAudio {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.7;
+
+  svg {
+    width: 400px;
+    height: 320px;
+  }
+}

@@ -3,8 +3,10 @@ import { ReactP5Wrapper } from "react-p5-wrapper";
 import {
   AudioSource,
   useGlobalStateContext,
-} from "../../state/GlobalStateProvider";
+} from "../../data/GlobalStateProvider";
+import styles from "./AudioVisCanvas.module.scss";
 import sketch from "./sketches/WaveformSketch";
+import { SingleCanvasDimensions } from "../../data/constants";
 
 let audioContext = new AudioContext();
 let dest: any;
@@ -25,7 +27,7 @@ const record = () => {
   recorder.start();
   setTimeout(() => {
     recorder.stop();
-  }, 5000);
+  }, 2000);
 };
 
 function exportVideo() {
@@ -101,10 +103,21 @@ const AudioVisCanvas = () => {
   };
 
   return (
-    <div>
-      <button onClick={onPlay}>Do stuff</button>
-      <button onClick={record}>Do rec</button>
-      <ReactP5Wrapper sketch={sketch} analyserNode={analyserNodeRef.current} />
+    <div style={{ width: SingleCanvasDimensions.Width }}>
+      <div className={styles.visCanvas}>
+        <ReactP5Wrapper
+          sketch={sketch}
+          analyserNode={analyserNodeRef.current}
+        />
+      </div>
+      <div className={styles.infoContainer}>
+        <div className={styles.sketchName}>Waveform</div>
+
+        <div className={styles.canvasControls}>
+          <button onClick={onPlay}>Play</button>
+          <button onClick={record}>Download</button>
+        </div>
+      </div>
     </div>
   );
 };

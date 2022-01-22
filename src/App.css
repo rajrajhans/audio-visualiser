@@ -1,23 +1,31 @@
 body {
   margin: 0;
-  font-family: 'Noto Sans', sans-serif;
+  font-family: "Noto Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* THEME COLORS */
+  --primary: white;
+  --secondary: #1a1d22;
+  --tertiary: #282c34;
+  --highlight: #00c6bb;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-  monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
 }
 
 .App {
-  background-color: #282c34;
+  background-color: var(--tertiary);
   min-height: calc(100vh - 50px);
-  color: white;
+  color: var(--primary);
   padding: 25px;
+  display: flex;
+  flex-direction: column;
 }
 
 a {
-  color: #61dafb;
+  color: var(--highlight);
   cursor: pointer;
 }

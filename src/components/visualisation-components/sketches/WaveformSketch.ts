@@ -1,11 +1,16 @@
 import { P5Instance } from "react-p5-wrapper";
 import drawPolygon from "../../../utils/drawPolygon";
+import { SingleCanvasDimensions } from "../../../data/constants";
 
 const waveformSketch = (p5: P5Instance) => {
   let analyserNode: AnalyserNode;
   let analyserData: Float32Array;
 
-  p5.setup = () => p5.createCanvas(500, 500);
+  p5.setup = () =>
+    p5.createCanvas(
+      SingleCanvasDimensions.Width,
+      SingleCanvasDimensions.Height
+    );
 
   p5.updateWithProps = (props) => {
     if (props.analyserNode) {

@@ -4,7 +4,7 @@ import sample_audios from "./sample_audios";
 import {
   AudioSource,
   useGlobalStateContext,
-} from "../../state/GlobalStateProvider";
+} from "../../data/GlobalStateProvider";
 
 const AudioSelector = () => {
   return (
