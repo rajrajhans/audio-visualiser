@@ -1,25 +1,30 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ReactP5Wrapper } from "react-p5-wrapper";
+import { P5Instance, ReactP5Wrapper } from "react-p5-wrapper";
 import {
   AudioSource,
   useGlobalStateContext,
 } from "../../data/GlobalStateProvider";
 import styles from "./AudioVisCanvas.module.scss";
-import sketch from "./sketches/WaveformSketch";
 import { SingleCanvasDimensions } from "../../data/constants";
 
 let audioContext = new AudioContext();
 let audioBufferSourceNode: AudioBufferSourceNode;
 let recorder: MediaRecorder;
 let recordedBlobURL: string;
-let dest: any;
-let chunks: any = [];
+let dest: MediaStreamAudioDestinationNode;
+let chunks: Blob[] = [];
 
-const record = () => {
+interface AudioVisCanvasProps {
+  sketch: (p5: P5Instance) => void;
+  name: string;
+}
+
+const record = (name: string) => {
   chunks.length = 0;
+  const selector = "#" + name + "-sketch canvas";
   // @ts-ignore
   let stream = document
-    .querySelector("#waveform-sketch canvas")
+    .querySelector(selector)
     // @ts-ignore
     .captureStream(30);
   dest.stream.addTrack(stream.getTracks()[0]);
@@ -37,7 +42,7 @@ const record = () => {
   recorder.start();
 };
 
-const AudioVisCanvas = () => {
+const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
   const { selectedMusic, audioSource, userUploadedMusic } =
     useGlobalStateContext();
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -129,13 +134,13 @@ const AudioVisCanvas = () => {
     } else {
       setIsAudioDownloading(true);
       await playAudio();
-      record();
+      record(name);
       const checkIfRecorded = () => {
         if (recordedBlobURL) {
           const link = document.createElement("a");
           // @ts-ignore
           link.className = "hiddenDownloadLink";
-          link.download = "waveform.webm";
+          link.download = name + ".webm";
           link.href = recordedBlobURL;
           document.body.appendChild(link);
           link.click();
@@ -151,14 +156,14 @@ const AudioVisCanvas = () => {
 
   return (
     <div style={{ width: SingleCanvasDimensions.Width }}>
-      <div className={styles.visCanvas} id="waveform-sketch">
+      <div className={styles.visCanvas} id={name + "-sketch"}>
         <ReactP5Wrapper
           sketch={sketch}
           analyserNode={analyserNodeRef.current}
         />
       </div>
       <div className={styles.infoContainer}>
-        <div className={styles.sketchName}>Waveform</div>
+        <div className={styles.sketchName}>{name}</div>
 
         <div className={styles.canvasControls}>
           <button onClick={playPauseHandler}>

@@ -5,6 +5,7 @@ import AudioSelector from "./components/AudioSelector/AudioSelector";
 import AudioVisCanvas from "./components/visualisation-components/AudioVisCanvas";
 import { useGlobalStateContext } from "./data/GlobalStateProvider";
 import SelectAudioMessage from "./components/SelectAudioMessage/SelectAudioMessage";
+import Sketches from "./components/visualisation-components/sketches";
 
 function App() {
   const audioEl = useRef<HTMLAudioElement | null>(null);
@@ -18,7 +19,13 @@ function App() {
       <Header />
       <AudioSelector />
       <div style={{ display: isAnyAudioSourceAvailable ? "block" : "none" }}>
-        <AudioVisCanvas />
+        {Sketches.map((sketch) => (
+          <AudioVisCanvas
+            key={sketch.name}
+            sketch={sketch.sketch}
+            name={sketch.name}
+          />
+        ))}
       </div>
       <SelectAudioMessage isVisible={!isAnyAudioSourceAvailable} />
       <audio ref={audioEl} />
