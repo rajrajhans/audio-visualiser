@@ -1,6 +1,6 @@
-import blue_jeans from "../../assets/sample_audios/bluejeans.mp3";
-import chime from "../../assets/sample_audios/chime.mp3";
-import piano from "../../assets/sample_audios/piano.mp3";
+import blue_jeans from "../assets/sample_audios/bluejeans.mp3";
+import chime from "../assets/sample_audios/chime.mp3";
+import piano from "../assets/sample_audios/piano.mp3";
 
 interface SampleAudio {
   id: number;

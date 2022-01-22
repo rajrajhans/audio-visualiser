@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./AudioSelector.module.scss";
-import sample_audios from "./sample_audios";
+import sample_audios from "./../../data/sample_audios";
 import {
   AudioSource,
   useGlobalStateContext,
