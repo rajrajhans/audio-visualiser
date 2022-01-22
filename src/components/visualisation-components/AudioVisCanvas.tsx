@@ -123,25 +123,30 @@ const AudioVisCanvas = () => {
   };
 
   const downloadHandler = async () => {
-    setIsAudioDownloading(true);
-    await playAudio();
-    record();
-    const checkIfRecorded = () => {
-      if (recordedBlobURL) {
-        const link = document.createElement("a");
-        // @ts-ignore
-        link.className = "hiddenDownloadLink";
-        link.download = "waveform.webm";
-        link.href = recordedBlobURL;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setIsAudioDownloading(false);
-      } else {
-        setTimeout(checkIfRecorded, 1000);
-      }
-    };
-    checkIfRecorded();
+    if (isAudioDownloading) {
+      setIsAudioDownloading(false);
+      stopPlayingAudio();
+    } else {
+      setIsAudioDownloading(true);
+      await playAudio();
+      record();
+      const checkIfRecorded = () => {
+        if (recordedBlobURL) {
+          const link = document.createElement("a");
+          // @ts-ignore
+          link.className = "hiddenDownloadLink";
+          link.download = "waveform.webm";
+          link.href = recordedBlobURL;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setIsAudioDownloading(false);
+        } else {
+          setTimeout(checkIfRecorded, 1000);
+        }
+      };
+      checkIfRecorded();
+    }
   };
 
   return (
@@ -159,12 +164,8 @@ const AudioVisCanvas = () => {
           <button onClick={playPauseHandler}>
             {isAudioPlaying ? "Stop" : "Play"}
           </button>
-          <button
-            disabled={isAudioDownloading}
-            onClick={downloadHandler}
-            style={{ cursor: isAudioDownloading ? "not-allowed" : "pointer" }}
-          >
-            {isAudioDownloading ? "Downloading..." : "Download"}
+          <button onClick={downloadHandler}>
+            {isAudioDownloading ? "Stop Downloading" : "Download"}
           </button>
         </div>
       </div>
