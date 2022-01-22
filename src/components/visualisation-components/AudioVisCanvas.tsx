@@ -72,17 +72,22 @@ const AudioVisCanvas = () => {
 
   useEffect(() => {
     setupNodes();
+    stopPlayingAudio();
   }, [selectedMusic, audioSource]);
 
   const playPauseHandler = () => {
     if (isAudioPlaying) {
-      if (audioBufferSourceNode) {
-        audioBufferSourceNode.stop(0);
-        setIsAudioPlaying(false);
-      }
+      stopPlayingAudio();
     } else {
       playAudio();
       setIsAudioPlaying(true);
+    }
+  };
+
+  const stopPlayingAudio = () => {
+    if (audioBufferSourceNode) {
+      audioBufferSourceNode.stop(0);
+      setIsAudioPlaying(false);
     }
   };
 
@@ -92,7 +97,7 @@ const AudioVisCanvas = () => {
       const resp = await fetch(selectedMusic);
       buf = await resp.arrayBuffer();
     } else {
-      buf = userUploadedMusic;
+      buf = userUploadedMusic?.slice(0);
     }
 
     // @ts-ignore
