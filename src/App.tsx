@@ -18,7 +18,10 @@ function App() {
     <div className="App">
       <Header />
       <AudioSelector />
-      <div style={{ display: isAnyAudioSourceAvailable ? "block" : "none" }}>
+      <div
+        style={{ display: isAnyAudioSourceAvailable ? "flex" : "none" }}
+        className={"sketches"}
+      >
         {Sketches.map((sketch) => (
           <AudioVisCanvas
             key={sketch.name}

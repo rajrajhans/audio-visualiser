@@ -33,3 +33,8 @@ a {
 .hiddenDownloadLink {
   display: none;
 }
+
+.sketches {
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
