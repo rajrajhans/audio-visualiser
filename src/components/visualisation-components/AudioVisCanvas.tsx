@@ -10,7 +10,7 @@ import { SingleCanvasDimensions } from "../../data/constants";
 let audioContext = new AudioContext();
 let audioBufferSourceNode: AudioBufferSourceNode;
 let recorder: MediaRecorder;
-let recordedBlobURL: string;
+let recordedBlobURL: string | undefined;
 let dest: MediaStreamAudioDestinationNode;
 let chunks: Blob[] = [];
 
@@ -125,6 +125,7 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
       setIsAudioDownloading(false);
       stopPlayingAudio();
     } else {
+      recordedBlobURL = undefined;
       setIsAudioDownloading(true);
       await playAudio();
       record(name);
