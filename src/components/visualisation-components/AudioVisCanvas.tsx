@@ -156,7 +156,7 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
         />
       </div>
       <div className={styles.infoContainer}>
-        <div className={styles.sketchName}>{name}</div>
+        <div className={styles.sketchName}>{name} Visualisation</div>
 
         <div className={styles.canvasControls}>
           <button onClick={playPauseHandler}>
