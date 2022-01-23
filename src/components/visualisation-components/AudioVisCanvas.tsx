@@ -49,7 +49,6 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
   const [isAudioDownloading, setIsAudioDownloading] = useState(false);
   const gainNodeRef = useRef<GainNode | null>(null);
   const analyserNodeRef = useRef<AnalyserNode | null>(null);
-  const analyserDataRef = useRef<Float32Array>(new Float32Array());
 
   const setupNodes = () => {
     if (!gainNodeRef.current) {
@@ -61,9 +60,6 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
     if (!analyserNodeRef.current) {
       if (audioContext) {
         analyserNodeRef.current = audioContext.createAnalyser();
-        analyserDataRef.current = new Float32Array(
-          analyserNodeRef.current.fftSize
-        );
         gainNodeRef.current?.connect(analyserNodeRef.current);
         gainNodeRef.current?.connect(audioContext.destination);
       }
@@ -117,9 +113,6 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
       };
       dest = audioContext.createMediaStreamDestination();
       audioBufferSourceNode.connect(dest);
-      if (analyserNodeRef.current) {
-        analyserNodeRef.current.getFloatTimeDomainData(analyserDataRef.current);
-      }
     } else {
       await setupNodes();
       alert("There was an error in setting up Audio Context");
