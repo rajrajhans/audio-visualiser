@@ -21,7 +21,7 @@ interface AudioVisCanvasProps {
 
 const record = (name: string) => {
   chunks.length = 0;
-  const selector = "#" + name + "-sketch canvas";
+  const selector = "#" + name.replaceAll(" ", "") + "-sketch canvas";
   // @ts-ignore
   let stream = document
     .querySelector(selector)
@@ -149,7 +149,10 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
 
   return (
     <div style={{ width: SingleCanvasDimensions.Width }}>
-      <div className={styles.visCanvas} id={name + "-sketch"}>
+      <div
+        className={styles.visCanvas}
+        id={name.replaceAll(" ", "") + "-sketch"}
+      >
         <ReactP5Wrapper
           sketch={sketch}
           analyserNode={analyserNodeRef.current}
