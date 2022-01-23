@@ -5,7 +5,11 @@ import {
   useGlobalStateContext,
 } from "../../data/GlobalStateProvider";
 import styles from "./AudioVisCanvas.module.scss";
-import { SingleCanvasDimensions } from "../../data/constants";
+import {
+  SingleCanvasDimensions,
+  SingleCanvasDimensionsMobile,
+} from "../../data/constants";
+import isDeviceMobile from "../../utils/isDeviceMobile";
 
 interface AudioVisCanvasProps {
   sketch: (p5: P5Instance) => void;
@@ -157,7 +161,14 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
   };
 
   return (
-    <div style={{ width: SingleCanvasDimensions.Width }}>
+    <div
+      style={{
+        width: isDeviceMobile()
+          ? SingleCanvasDimensionsMobile.Width
+          : SingleCanvasDimensions.Width,
+      }}
+      className={styles.visCanvasContainer}
+    >
       <div
         className={styles.visCanvas}
         id={name.replaceAll(" ", "") + "-sketch"}

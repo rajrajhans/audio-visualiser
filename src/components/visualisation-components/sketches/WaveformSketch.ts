@@ -1,16 +1,26 @@
 import { P5Instance } from "react-p5-wrapper";
 import drawPolygon from "../../../utils/drawPolygon";
-import { SingleCanvasDimensions } from "../../../data/constants";
+import {
+  SingleCanvasDimensions,
+  SingleCanvasDimensionsMobile,
+} from "../../../data/constants";
+import isDeviceMobile from "../../../utils/isDeviceMobile";
 
 const waveformSketch = (p5: P5Instance) => {
   let analyserNode: AnalyserNode;
   let analyserData: Float32Array;
 
-  p5.setup = () =>
-    p5.createCanvas(
-      SingleCanvasDimensions.Width,
-      SingleCanvasDimensions.Height
-    );
+  let canvasWidth: number, canvasHeight: number;
+
+  if (isDeviceMobile()) {
+    canvasWidth = SingleCanvasDimensionsMobile.Width;
+    canvasHeight = SingleCanvasDimensionsMobile.Height;
+  } else {
+    canvasWidth = SingleCanvasDimensions.Width;
+    canvasHeight = SingleCanvasDimensions.Height;
+  }
+
+  p5.setup = () => p5.createCanvas(canvasWidth, canvasHeight);
 
   p5.updateWithProps = (props) => {
     if (props.analyserNode) {

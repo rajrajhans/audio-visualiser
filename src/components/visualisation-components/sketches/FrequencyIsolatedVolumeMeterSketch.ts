@@ -1,6 +1,10 @@
 import { P5Instance } from "react-p5-wrapper";
-import { SingleCanvasDimensions } from "../../../data/constants";
+import {
+  SingleCanvasDimensions,
+  SingleCanvasDimensionsMobile,
+} from "../../../data/constants";
 import getRootMeanSquaredOfSignals from "../../../utils/getRootMeanSquaredOfSignals";
+import isDeviceMobile from "../../../utils/isDeviceMobile";
 
 interface FrequencyIsolatedSignal {
   color: string;
@@ -14,11 +18,17 @@ const FrequencyIsolatedVolumeMeterSketch = (p5: P5Instance) => {
   let audioContext: AudioContext;
   let signals: FrequencyIsolatedSignal[];
 
-  p5.setup = () =>
-    p5.createCanvas(
-      SingleCanvasDimensions.Width,
-      SingleCanvasDimensions.Height
-    );
+  let canvasWidth: number, canvasHeight: number;
+
+  if (isDeviceMobile()) {
+    canvasWidth = SingleCanvasDimensionsMobile.Width;
+    canvasHeight = SingleCanvasDimensionsMobile.Height;
+  } else {
+    canvasWidth = SingleCanvasDimensions.Width;
+    canvasHeight = SingleCanvasDimensions.Height;
+  }
+
+  p5.setup = () => p5.createCanvas(canvasWidth, canvasHeight);
 
   p5.updateWithProps = (props) => {
     if (props.audioContext && props.gainNode) {

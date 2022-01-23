@@ -21,8 +21,9 @@
   align-items: center;
 }
 
-.blogPostLink {
-  @media only screen and (max-width: 768px) {
-    margin-top: 15px;
+.githubLink {
+  img {
+    height: 40px;
+    margin-right: 0;
   }
 }

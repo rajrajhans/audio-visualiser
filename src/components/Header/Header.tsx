@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./Header.module.scss";
 import audioWave from "../../assets/audio-wave.png";
+import githubLogo from "../../assets/github.png";
 
 const Header = () => {
   return (
@@ -10,9 +11,12 @@ const Header = () => {
         <div className={styles.title}>Audio Visualiser</div>
       </div>
 
-      <div className={styles.blogPostLink}>
-        <a>Read the Blog Post</a>
-      </div>
+      <a
+        className={styles.githubLink}
+        href={"https://github.com/rajrajhans/audio-visualiser"}
+      >
+        <img src={githubLogo} />
+      </a>
     </div>
   );
 };
