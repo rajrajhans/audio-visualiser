@@ -7,40 +7,10 @@ import {
 import styles from "./AudioVisCanvas.module.scss";
 import { SingleCanvasDimensions } from "../../data/constants";
 
-let audioContext = new AudioContext();
-let audioBufferSourceNode: AudioBufferSourceNode;
-let recorder: MediaRecorder;
-let recordedBlobURL: string | undefined;
-let dest: MediaStreamAudioDestinationNode;
-let chunks: Blob[] = [];
-
 interface AudioVisCanvasProps {
   sketch: (p5: P5Instance) => void;
   name: string;
 }
-
-const record = (name: string) => {
-  chunks.length = 0;
-  const selector = "#" + name.replaceAll(" ", "") + "-sketch canvas";
-  // @ts-ignore
-  let stream = document
-    .querySelector(selector)
-    // @ts-ignore
-    .captureStream(30);
-  dest.stream.addTrack(stream.getTracks()[0]);
-
-  recorder = new MediaRecorder(dest.stream);
-  recorder.ondataavailable = (e) => {
-    if (e.data.size) {
-      chunks.push(e.data);
-    }
-  };
-  recorder.onstop = () => {
-    const blob = new Blob(chunks);
-    recordedBlobURL = URL.createObjectURL(blob);
-  };
-  recorder.start();
-};
 
 const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
   const { selectedMusic, audioSource, userUploadedMusic } =
@@ -50,18 +20,52 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
   const gainNodeRef = useRef<GainNode | null>(null);
   const analyserNodeRef = useRef<AnalyserNode | null>(null);
 
+  const audioContext = useRef<AudioContext>(new AudioContext());
+  const audioBufferSourceNode = useRef<AudioBufferSourceNode | null>(null);
+  const recorder = useRef<MediaRecorder | null>(null);
+  const recordedBlobURL = useRef<string | undefined>(undefined);
+  const dest = useRef<MediaStreamAudioDestinationNode | null>(null);
+
+  const record = () => {
+    let chunks: Blob[] = [];
+
+    chunks.length = 0;
+    const selector = "#" + name.replaceAll(" ", "") + "-sketch canvas";
+    // @ts-ignore
+    let stream = document
+      .querySelector(selector)
+      // @ts-ignore
+      .captureStream(30);
+    if (dest.current) {
+      dest.current.stream.addTrack(stream.getTracks()[0]);
+      recorder.current = new MediaRecorder(dest.current.stream);
+      recorder.current.ondataavailable = (e) => {
+        if (e.data.size) {
+          chunks.push(e.data);
+        }
+      };
+      recorder.current.onstop = () => {
+        const blob = new Blob(chunks);
+        recordedBlobURL.current = URL.createObjectURL(blob);
+      };
+      recorder.current.start();
+    } else {
+      console.log("dest audio node not found");
+    }
+  };
+
   const setupNodes = () => {
     if (!gainNodeRef.current) {
       if (audioContext) {
-        gainNodeRef.current = audioContext.createGain();
+        gainNodeRef.current = audioContext.current.createGain();
       }
     }
 
     if (!analyserNodeRef.current) {
       if (audioContext) {
-        analyserNodeRef.current = audioContext.createAnalyser();
+        analyserNodeRef.current = audioContext.current.createAnalyser();
         gainNodeRef.current?.connect(analyserNodeRef.current);
-        gainNodeRef.current?.connect(audioContext.destination);
+        gainNodeRef.current?.connect(audioContext.current.destination);
       }
     }
   };
@@ -81,8 +85,8 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
   };
 
   const stopPlayingAudio = () => {
-    if (audioBufferSourceNode) {
-      audioBufferSourceNode.stop(0);
+    if (audioBufferSourceNode.current) {
+      audioBufferSourceNode.current.stop(0);
       setIsAudioPlaying(false);
     }
   };
@@ -96,23 +100,25 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
       buf = userUploadedMusic?.slice(0);
     }
 
-    // @ts-ignore
-    const audioBuffer: AudioBuffer = await audioContext.decodeAudioData(buf);
+    const audioBuffer: AudioBuffer = await audioContext.current.decodeAudioData(
+      // @ts-ignore
+      buf
+    );
 
-    if (audioContext && audioBuffer && gainNodeRef.current) {
-      await audioContext.resume();
-      audioBufferSourceNode = audioContext.createBufferSource();
-      audioBufferSourceNode.connect(gainNodeRef.current);
-      audioBufferSourceNode.buffer = audioBuffer;
-      audioBufferSourceNode.start(0);
-      audioBufferSourceNode.onended = () => {
+    if (audioContext.current && audioBuffer && gainNodeRef.current) {
+      await audioContext.current.resume();
+      audioBufferSourceNode.current = audioContext.current.createBufferSource();
+      audioBufferSourceNode.current.connect(gainNodeRef.current);
+      audioBufferSourceNode.current.buffer = audioBuffer;
+      audioBufferSourceNode.current.start(0);
+      audioBufferSourceNode.current.onended = () => {
         setIsAudioPlaying(false);
-        if (recorder) {
-          recorder.stop();
+        if (recorder.current) {
+          recorder.current.stop();
         }
       };
-      dest = audioContext.createMediaStreamDestination();
-      audioBufferSourceNode.connect(dest);
+      dest.current = audioContext.current.createMediaStreamDestination(); // creating a audio stream that we will use for recording
+      audioBufferSourceNode.current.connect(dest.current);
     } else {
       await setupNodes();
       alert("There was an error in setting up Audio Context");
@@ -125,17 +131,19 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
       setIsAudioDownloading(false);
       stopPlayingAudio();
     } else {
-      recordedBlobURL = undefined;
+      recordedBlobURL.current = undefined;
       setIsAudioDownloading(true);
-      await playAudio();
-      record(name);
+      if (!isAudioPlaying) {
+        await playAudio();
+      }
+      record();
       const checkIfRecorded = () => {
-        if (recordedBlobURL) {
+        if (recordedBlobURL.current) {
           const link = document.createElement("a");
           // @ts-ignore
           link.className = "hiddenDownloadLink";
           link.download = name + ".webm";
-          link.href = recordedBlobURL;
+          link.href = recordedBlobURL.current;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -158,7 +166,7 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
           sketch={sketch}
           analyserNode={analyserNodeRef.current}
           gainNode={gainNodeRef.current}
-          audioContext={audioContext}
+          audioContext={audioContext.current}
         />
       </div>
       <div className={styles.infoContainer}>
