@@ -153,6 +153,8 @@ const AudioVisCanvas = ({ sketch, name }: AudioVisCanvasProps) => {
         <ReactP5Wrapper
           sketch={sketch}
           analyserNode={analyserNodeRef.current}
+          gainNode={gainNodeRef.current}
+          audioContext={audioContext}
         />
       </div>
       <div className={styles.infoContainer}>

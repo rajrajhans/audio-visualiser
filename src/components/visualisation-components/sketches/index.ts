@@ -1,6 +1,7 @@
 import waveformSketch from "./WaveformSketch";
 import { P5Instance } from "react-p5-wrapper";
-import volumeMeterSketch from "./VolumeMeterSketch";
+import VolumeMeterSketch from "./VolumeMeterSketch";
+import FrequencyIsolatedVolumeMeterSketch from "./FrequencyIsolatedVolumeMeterSketch";
 
 export interface SketchObject {
   name: string;
@@ -14,7 +15,11 @@ const Sketches: SketchObject[] = [
   },
   {
     name: "Volume Meter",
-    sketch: volumeMeterSketch,
+    sketch: VolumeMeterSketch,
+  },
+  {
+    name: "Frequency Isolated Volume Meter",
+    sketch: FrequencyIsolatedVolumeMeterSketch,
   },
 ];
 
